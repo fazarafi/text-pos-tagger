@@ -24,9 +24,13 @@ class TagProbabilityService:
 
     def __init__(self, file_path):
         if os.path.exists(self.object_file_path):
-            with open(object_file_path, "rb") as f:
+            with open(self.object_file_path, "rb") as f:
                 dump = pickle.load(f)
-                self = dump
+                self.prob_dict = dump
+                
+                cond = ConditionalProbabilityExpression(self.prob_dict.keys()[0].get_first(),self.prob_dict.keys()[0].get_second())
+                print self.prob_dict[cond]
+
         else :
             corpus_file = open(file_path,'r')
             corpus_data = re.sub(r" +", r"\t",corpus_file.read())
@@ -60,19 +64,24 @@ class TagProbabilityService:
                         self.tag_word_dict[expression_tag_word] = 1
 
             self.count_prob_tag_word()
-            with open(object_file_path, "wb") as f:
-                pickle.dump(self, f, pickle.HIGHEST_PROTOCOL)
+            with open(self.object_file_path, "wb") as f:
+                pickle.dump(self.prob_dict, f, pickle.HIGHEST_PROTOCOL)
+
+            for t in self.prob_dict:
+                print t
 
 
     def count_prob_tag_word(self):
-        for tag_word in tag_word_dict:
-            prob_dict[tag_word] = tag_word_dict[tag_word]/word_dict[tag_word.second]
+        for tag_word in self.tag_word_dict:
+            self.prob_dict[tag_word] = self.tag_word_dict[tag_word]/self.word_dict[tag_word.get_second()]
 
-    def prob_dict(self):
-        return prob_dict
+    def get_prob_dict(self):
+        return self.prob_dict
+
+    def get_tag_word_dict(self):
+        return self.tag_word_dict
 
 tag = TagProbabilityService("UD_English/en-ud-test.conllu")
 print '==========='
-for t in tag.tag_word_dict:
-    if t.values() > 5:
-        print t.values()
+#for t in tag.get_prob_dict():
+    #print t.get_second()
