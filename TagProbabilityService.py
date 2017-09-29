@@ -71,7 +71,7 @@ class TagProbabilityService:
     def prob_dict(self):
         return prob_dict
 
-tag = TagProbabilityService("UD_English/en-ud-dev.conllu")
+tag = TagProbabilityService("UD_English/en-ud-test.conllu")
 print '==========='
 for t in tag.tag_word_dict:
     if t.values() > 5:
