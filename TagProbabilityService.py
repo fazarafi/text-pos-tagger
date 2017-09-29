@@ -73,6 +73,6 @@ class TagProbabilityService:
 
 tag = TagProbabilityService("UD_English/en-ud-dev.conllu")
 print '==========='
-for t in tag.word_tag_dict:
+for t in tag.tag_word_dict:
     if t.values() > 5:
         print t.values()
