@@ -58,7 +58,7 @@ class TagProbabilityService:
             i = i + 1
             self.explore_tree(sentence)
 
-tag = TagProbabilityService("/home/asus/Semester7/NLP/POSTagger/UD_English/en-ud-dev.conllu")
+tag = TagProbabilityService("UD_English/en-ud-dev.conllu")
 print '==========='
 for tag in word_tag_dict:
     if tag.values() > 5:
