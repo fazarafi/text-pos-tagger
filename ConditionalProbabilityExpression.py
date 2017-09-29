@@ -1,7 +1,7 @@
 
 class ConditionalProbabilityExpression:
-    tag = 0
-    word = 0
+    first = 0
+    second = 0
 
     def __init__(self, tag, word):
       self.tag = tag

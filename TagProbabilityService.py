@@ -1,6 +1,7 @@
 from collections import OrderedDict
 from conllu.parser import parse, parse_tree, parse_line
 import re
+import pickle
 from Tag import Tag
 from ConditionalProbabilityExpression import ConditionalProbabilityExpression
 
@@ -11,10 +12,10 @@ class TagProbabilityService:
     #ConditionalProbabilityExpression is P[tag|word]
     prob_dict = OrderedDict()
 
-    #Represented as [word , tag]
-    word_tag_dict = OrderedDict()
+    #Represented as [word, count]
+    word_dict = OrderedDict()
 
-    #Represented as [tag, word]
+    #Represented as [tag|word, count]
     tag_word_dict = OrderedDict()
 
 
@@ -26,14 +27,13 @@ class TagProbabilityService:
         tag = tag_detector.get_tag(data_in_ordered_dict['upostag'])
 
         expression_tag_word = ConditionalProbabilityExpression(tag,word)
-        expression_word_tag = ConditionalProbabilityExpression(word,tag)
 
-        if expression_word_tag in self.word_tag_dict.keys():
-            value = self.word_tag_dict[expression_word_tag]
+        if word in self.word_dict.keys():
+            value = self.word_dict[word]
             value = value + 1
-            self.word_tag_dict[expression_word_tag] = value
+            self.word_dict[word] = value
         else :
-            self.word_tag_dict[expression_word_tag] = 1
+            self.word_dict[word] = 1
 
 
         if expression_tag_word in self.tag_word_dict.keys():
@@ -57,6 +57,13 @@ class TagProbabilityService:
             print i
             i = i + 1
             self.explore_tree(sentence)
+
+    def count_prob_tag_word(self):
+        for tag_word in tag_word_dict:
+            prob_dict[tag_word] = tag_word_dict[tag_word]/word_dict[tag_word.second]
+
+    def prob_dict(self):
+        return prob_dict;
 
 tag = TagProbabilityService("UD_English/en-ud-dev.conllu")
 print '==========='
