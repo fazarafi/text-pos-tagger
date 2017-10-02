@@ -23,7 +23,7 @@ class Main:
         for sentence in sentence_list:
             number_of_sentence = number_of_sentence + 1
             sentence_correctly_tagged = True
-
+        
             tag1 = Tag.NOTEXIST
             tag2 = Tag.NOTEXIST
             for token in sentence:
@@ -81,3 +81,8 @@ class Main:
         self.tw_prob_dict = tagProb.get_tw_prob_dict()
         self.wt_prob_dict = tagProb.get_wt_prob_dict()
         self.ttt_prob_dict = tagProb.get_ttt_prob_dict()
+
+    def tag_new_sentence(self, new_sentence):
+        sentence_classifier = SentenceClassifier()
+        sentence_classifier.tokenize_sentence(new_sentence)
+

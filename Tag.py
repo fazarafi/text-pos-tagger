@@ -57,3 +57,6 @@ class Tag(Enum):
             return self.X
         else :
             return self.NOTEXIST
+
+    def get_all_tags(self):
+        return [self.ADJ, self.ADP, self.ADV, self.AUX, self.CCONJ, self.DET, self.INTJ, self.NOUN, self.NUM, self.PART, self.PRON, self.PROPN, self.PUNCT, self.SCONJ, self.SYM, self.VERB, self.X, self.NOTEXIST]
