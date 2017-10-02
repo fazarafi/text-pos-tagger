@@ -1,65 +1,152 @@
 import nltk
 from sentence_token import SentenceToken
 from random import randint
-# from TagProbabilityService import TagProbabilityService
-from Tag import Tag
+from conllu.parser import parse, parse_tree, parse_line
+import time
+
 from sklearn.svm import SVC
-from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.naive_bayes import GaussianNB
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.neural_network import MLPClassifier
+
+# import numpy as np
+import pandas as pd
 from sklearn import preprocessing
 from sklearn.feature_extraction import DictVectorizer
-import numpy as np
-from conllu.parser import parse, parse_tree, parse_line
-
+from sklearn.pipeline import Pipeline 
 import re
 
 class SentenceClassifier(object):
-	train_file_path = "UD_English/en-ud-test.conllu"
-		
-	def __init__(self, available_tags=None, tokenized_sentence=None, dataset=None, dataset_class=None):
+	train_file_path = "UD_English/en-ud-train.conllu"
+	test_file_path = "UD_English/en-ud-test.conllu"
+
+	def __init__(self, available_tags=None, tokenized_sentence=None, dataset=None, target=None, my_clf=None):
 		self.available_tags = available_tags
-
-	def tokenize_sentence(self, sentence):
-		words = nltk.word_tokenize(sentence)
-		print words
-		tokenized_sentence = []
-		for word in words:
-			token = SentenceToken(word)
-			tokenized_sentence.append(token)
-
-		self.tokenized_sentence = tokenized_sentence
-
+		self.dataset = dataset
+		self.target = target
+		self.my_clf = my_clf
 	
-	def preprocess_data(self):
-		sentence_list = self.read_external_file("UD_English/en-ud-test.conllu")
+
+	def preprocess_training_data(self):
+		sentence_list = self.read_external_file("UD_English/en-ud-train.conllu")
 		dataset = []
-		dataset_class = []
-		feature_names = ['word', 'prev_tag', 'next_tag', 'tag_class']
-		all_classes = ["ADJ","ADP","ADV","AUX","CCONJ","DET","INTJ","NOUN","NUM","PART","PRON","PROPN","PUNCT","SCONJ","SYM","VERB","X"]
+		target = []
 		prev_tag = ''
+		prev_word = ''
+		next_tag = ''
+		next_word = ''
 		row_id = 0
 		for sentence in sentence_list:
+			word_id = 0
 			for token in sentence:
 				word = str.lower(token['form'])
 				tag = token['upostag']
-				dataset_class.append(tag)
-				dataset.append([word,prev_tag,''])
+				target.append(tag)
+				dataset.append({'word': word, 'prev_word': prev_word, 'next_word': next_word,'prev_tag': prev_tag, 'next_tag': '', 'is_numeric': word.isdigit()})
 				if (row_id!=0):
-					dataset[row_id-1][2] = tag				
+					dataset[row_id-1]['next_word'] = word
+					dataset[row_id-1]['next_tag'] = tag				
 				prev_tag = tag
+				prev_word = word
 				row_id += 1
-		print dataset[0][0]+" = "+dataset_class[0]
-		print dataset[1][0]+" = "+dataset_class[1]
-		print dataset[2][0]+" = "+dataset_class[2]
-		print dataset[3][0]+" = "+dataset_class[3]
-		print dataset[4][0]+" = "+dataset_class[4]
-		self.dataset = dataset
-		self.dataset_class = dataset_class
-		le = preprocessing.LabelEncoder()
-		
+				word_id+= 1
 
-	def vectorize(self):
-		v = DictVectorizer(sparse=False)
+		self.dataset = dataset
+		self.target = target
+	
+	def preprocess_testing_data(self):
+		sentence_list = self.read_external_file("UD_English/en-ud-test.conllu")
+		dataset = []
+		target = []
+		prev_tag = ''
+		prev_word = ''
+		next_tag = ''
+		next_word = ''
+		row_id = 0
+		for sentence in sentence_list:
+			word_id = 0
+			for token in sentence:
+				word = str.lower(token['form'])
+				tag = token['upostag']
+				target.append(tag)
+				dataset.append({'word': word, 'prev_word': prev_word, 'next_word': next_word,'prev_tag': prev_tag, 'next_tag': '', 'is_numeric': word.isdigit()})
+				if (row_id!=0):
+					dataset[row_id-1]['next_word'] = word
+					dataset[row_id-1]['next_tag'] = tag				
+				prev_tag = tag
+				prev_word = word
+				row_id += 1
+				word_id+= 1
+		return dataset, target
+	
+	def train_eval_data(self, algo_name):
+		print ""
+		test_data, test_target = self.preprocess_testing_data()
+		start_time = time.time()
+		if (algo_name == "GNB"):
+			print "Gaussian Naive Bayes"
+			self.my_clf = Pipeline([
+			    ('vectorizer', DictVectorizer(sparse=False)),
+			    ('classifier', GaussianNB())
+			])
+			
+		elif (algo_name == "RFC"):
+			print "Random Forest Classifier"
+			self.my_clf = Pipeline([
+			    ('vectorizer', DictVectorizer(sparse=False)),
+			    ('classifier', RandomForestClassifier(max_depth=2, random_state=0))
+			])
+			
+		elif (algo_name == "DTL"):
+			print "Decision Tree"
+			self.my_clf = Pipeline([
+			    ('vectorizer', DictVectorizer(sparse=False)),
+			    ('classifier', DecisionTreeClassifier(criterion='entropy'))
+			])
+			
+		elif (algo_name == "MLP"):
+			print "Multi-Layer-Perceptron"
+			self.my_clf = Pipeline([
+			    ('vectorizer', DictVectorizer(sparse=False)),
+			    ('classifier', MLPClassifier(solver='lbfgs', alpha=1e-5,
+                     hidden_layer_sizes=(5, 2), random_state=1))
+			])
+				
+		self.my_clf.fit(self.dataset, self.target)
+		elapsed_time = time.time() - start_time
+		print "Time lapsed: ", float("{0:.2f}".format(elapsed_time))," s"
+		print "Accuracy:", float("{0:.2f}".format(100*self.my_clf.score(test_data, test_target)))," %"
+		print "Determining POS of :\"I want to go to school at 5 PM.\""
+		tokens = self.preprocess_new_sentence("I want to go to school at 5 PM.")
+		for token in tokens:
+			print token['word']+" -> "+self.my_clf.predict(token)[0]
+		
+	def preprocess_new_sentence(self, sentence):
+		words = nltk.word_tokenize(sentence)
+		tokens = []
+		prev_tag = ''
+		prev_word = ''
+		next_tag = ''
+		next_word = ''
+		row_id = 0
+		word_id = 0
+		for word in words:
+			word = str.lower(word)
+			token = {'word': word, 'prev_word': prev_word, 'next_word': next_word, 'prev_tag': '', 'next_tag': next_tag, 'is_numeric': word.isdigit()}
+			tokens.append(token)
+			d = DictVectorizer(sparse=False)
+			pred1_tag = ''#self.my_clf.predict(d.fit_transform(token))
+			if (row_id!=0):
+				tokens[row_id-1]['next_word'] = word
+				tokens[row_id-1]['next_tag'] = pred1_tag
+
+			prev_word = word
+			prev_tag = pred1_tag
+			row_id += 1
+			word_id += 1
+		return tokens
+		# return zip(sentence, tags)
 
 	def read_external_file(self, file_path):
 		corpus_file = open(file_path,'r')
@@ -67,52 +154,9 @@ class SentenceClassifier(object):
 		sentence_list = parse(corpus_data)
 		return sentence_list
 
-	
-
 sc = SentenceClassifier()
-sc.preprocess_data()
-
-# def insert_candidates(self, word, candidates):
-# 		for token in self.tokenized_sentence:
-# 			if (word == token.word):
-# 				token.set_candidates(candidates)
-# 				break
-
-# 	def choose_pos_tag(self, tag_array, prob_dict):
-# 		for token in self.tokenized_sentence:
-# 			print "====================="
-# 			print token.word
-# 			for pos in tag_array:
-# 				print token.word+" -> "+str(pos)
-# 				print prob_dict[str(pos) + '|' + token.word]
-
-
-	# classifier.insert_candidates(token.word,["NNP","VB"])
-
-# classifier.choose_pos_tag()
-# for token in classifier.tokenized_sentence:
-# 	print ">"
-# 	print token.word
-# 	print token.pos_tag_candidates
-# 	print token.pos_tag
-# 	print ""
-
-# def choose_pos_tag(self):
-# 	for idx in range(len(self.tokenized_sentence)):
-# 		token = self.tokenized_sentence[idx]
-# 		t_1_pos_tag = ""
-# 		t_2_pos_tag = ""
-# 		if (token.pos_tag_candidates != None):
-# 			chosen = ""
-# 			max_prob = -1
-# 			if (idx!=0):
-# 				t_1_pos_tag = self.tokenized_sentence[idx-1].pos_tag
-# 			if (idx>1):
-# 				t_2_pos_tag = self.tokenized_sentence[idx-2].pos_tag
-# 			for cand in token.pos_tag_candidates:
-# 				prob = randint(0,9) #calc_prob(token.word.itself,cand)
-# 				if (prob>max_prob):
-# 					chosen = cand
-# 					max_prob = prob
-# 			token.pos_tag = chosen
-	
+sc.preprocess_training_data()
+# sc.train_eval_data("DTL")
+sc.train_eval_data("RFC")
+sc.train_eval_data("GNB")
+sc.train_eval_data("MLP")
