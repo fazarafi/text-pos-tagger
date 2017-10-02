@@ -3,7 +3,7 @@ class SentenceToken:
 		self.word = word
 		self.pos_tag = pos_tag
 		self.pos_tag_candidates = pos_tag_candidates
-		
+
 	def set_pos_tag(self, pos_tag):
 		self.pos_tag = pos_tag
 

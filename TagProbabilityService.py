@@ -47,8 +47,8 @@ class TagProbabilityService:
 
             i = 0
             for sentence in sentence_list:
-                print i
                 i = i + 1
+                print 'start' + str(i)
 
                 tag1 = Tag.NOTEXIST
                 tag2 = Tag.NOTEXIST
@@ -57,6 +57,9 @@ class TagProbabilityService:
                     word = token['form']
                     tag_detector = Tag.NOTEXIST
                     tag = tag_detector.get_tag(token['upostag'])
+
+                    if (i == 12541):
+                        print word
 
                     self.update_word_dict(word)
                     self.update_tag_word_dict(str(tag)+'|'+word)
@@ -70,6 +73,7 @@ class TagProbabilityService:
                     #update tag
                     tag2 = tag1
                     tag1 = tag
+                print 'finish ' + str(i)
 
             self.count_tw_prob_dict()
             self.count_wt_prob_dict()
@@ -164,7 +168,7 @@ class TagProbabilityService:
         with open(self.ttt_object_file_path, "wb") as f:
             pickle.dump(self.ttt_prob_dict, f, pickle.HIGHEST_PROTOCOL)
 
-tag = TagProbabilityService("UD_English/en-ud-train.conllu")
-prob_dict = tag.get_ttt_prob_dict()
-print prob_dict
+#tag = TagProbabilityService("UD_English/en-ud-train.conllu")
+#prob_dict = tag.get_ttt_prob_dict()
+#print prob_dict
 #P(Tag.ADJ|rice)

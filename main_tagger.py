@@ -1,16 +1,15 @@
 from ConditionalProbabilityExpression import ConditionalProbabilityExpression
 from TagProbabilityService import TagProbabilityService
-from sentence_classifier import SentenceClassifier
-from sentence_token import SentenceToken
+from collections import OrderedDict
 import re
 
 class Main:
 
     test_file_path = "UD_English/en-ud-dev.conllu"
     train_file_path = "UD_English/en-ud-train.conllu"
-    tw_prob_dict
-    wt_prob_dict
-    ttt_prob_dict
+    tw_prob_dict = OrderedDict()
+    wt_prob_dict = OrderedDict()
+    ttt_prob_dict = OrderedDict()
 
     def __init__(self):
         sentence_list = self.read_external_file()
@@ -24,7 +23,7 @@ class Main:
         for sentence in sentence_list:
             number_of_sentence = number_of_sentence + 1
             sentence_correctly_tagged = True
-        
+
             tag1 = Tag.NOTEXIST
             tag2 = Tag.NOTEXIST
             for token in sentence:
@@ -82,8 +81,3 @@ class Main:
         self.tw_prob_dict = tagProb.get_tw_prob_dict()
         self.wt_prob_dict = tagProb.get_wt_prob_dict()
         self.ttt_prob_dict = tagProb.get_ttt_prob_dict()
-
-    def tag_new_sentence(self, new_sentence):
-        sentence_classifier = SentenceClassifier()
-        sentence_classifier.tokenize_sentence(new_sentence)
-
