@@ -1,6 +1,5 @@
 import nltk
 from sentence_token import SentenceToken
-from single_token import SingleToken
 from random import randint
 
 class SentenceClassifier(object):
@@ -14,7 +13,7 @@ class SentenceClassifier(object):
 		for word in words:
 			token = SentenceToken(word)
 			tokenized_sentence.append(token)
-			
+
 		self.tokenized_sentence = tokenized_sentence
 
 	def insert_candidates(self, word, candidates):
@@ -54,6 +53,3 @@ for token in classifier.tokenized_sentence:
 	print token.pos_tag_candidates
 	print token.pos_tag
 	print ""
-
-		
-
