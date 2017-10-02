@@ -164,6 +164,9 @@ class TagProbabilityService:
         with open(self.ttt_object_file_path, "wb") as f:
             pickle.dump(self.ttt_prob_dict, f, pickle.HIGHEST_PROTOCOL)
 
+    def get_all_tags(self):
+        return [Tag.ADJ, Tag.ADP, Tag.ADV, Tag.AUX, Tag.CCONJ, Tag.DET, Tag.INTJ, Tag.NOUN, Tag.NUM, Tag.PART, Tag.PRON, Tag.PROPN, Tag.PUNCT, Tag.SCONJ, Tag.SYM, Tag.VERB, Tag.X]
+
 tag = TagProbabilityService("UD_English/en-ud-test.conllu")
 prob_dict = tag.get_ttt_prob_dict()
 print prob_dict
