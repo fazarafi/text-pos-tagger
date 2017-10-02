@@ -1,16 +1,15 @@
 from ConditionalProbabilityExpression import ConditionalProbabilityExpression
 from TagProbabilityService import TagProbabilityService
-from sentence_classifier import SentenceClassifier
-from sentence_token import SentenceToken
+from collections import OrderedDict
 import re
 
 class Main:
 
-    test_file_path = "UD_English/en-ud-dev.conllu"
-    train_file_path = "UD_English/en-ud-train.conllu"
-    tw_prob_dict
-    wt_prob_dict
-    ttt_prob_dict
+    test_file_path = "UD_English/en-ud-train.conllu"
+    train_file_path = "UD_English/en-ud-test.conllu"
+    tw_prob_dict = OrderedDict()
+    wt_prob_dict = OrderedDict()
+    ttt_prob_dict = OrderedDict()
 
     def __init__(self):
         sentence_list = self.read_external_file()
