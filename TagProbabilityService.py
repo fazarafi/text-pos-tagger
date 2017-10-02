@@ -167,4 +167,4 @@ class TagProbabilityService:
 tag = TagProbabilityService("UD_English/en-ud-test.conllu")
 prob_dict = tag.get_tw_prob_dict()
 #P(Tag.ADJ|rice)
-print prob_dict[str(Tag.NOUN) + '|' + 'meeting']
+# print prob_dict[str(Tag.NOUN) + '|' + 'meeting']

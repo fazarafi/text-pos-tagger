@@ -1,7 +1,8 @@
 import nltk
 from sentence_token import SentenceToken
-from single_token import SingleToken
 from random import randint
+from TagProbabilityService import TagProbabilityService
+from Tag import Tag
 
 class SentenceClassifier(object):
 	def __init__(self, available_tags=None, tokenized_sentence=None):
@@ -42,9 +43,18 @@ class SentenceClassifier(object):
 						max_prob = prob
 				token.pos_tag = chosen
 
+tag = TagProbabilityService("UD_English/en-ud-test.conllu")
+prob_dict = tag.get_tw_prob_dict()
+#P(Tag.ADJ|rice)
+print prob_dict[str(Tag.NOUN) + '|' + 'meeting']
+
+ttt_dict = tag.get_ttt_prob_dict()
+print ttt_dict[str(Tag.VERB)+"|"+str(Tag.NOUN)+","+str(Tag.NOUN)]
+
 classifier = SentenceClassifier()
 classifier.tokenize_sentence("Depending on what you plan to do with your sentence-as-a-list")
 for token in classifier.tokenized_sentence:
+	print token.word
 	classifier.insert_candidates(token.word,["NNP","VB"])
 
 classifier.choose_pos_tag()
