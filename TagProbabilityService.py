@@ -101,7 +101,7 @@ class TagProbabilityService:
         return self.tw_prob_dict
 
     def get_wt_prob_dict(self):
-        return self.wt_probdict
+        return self.wt_prob_dict
 
     def get_ttt_prob_dict(self):
         return self.ttt_prob_dict;
@@ -165,5 +165,6 @@ class TagProbabilityService:
             pickle.dump(self.ttt_prob_dict, f, pickle.HIGHEST_PROTOCOL)
 
 tag = TagProbabilityService("UD_English/en-ud-test.conllu")
-prob_dict = tag.get_tw_prob_dict()
+prob_dict = tag.get_ttt_prob_dict()
+print prob_dict
 #P(Tag.ADJ|rice)
