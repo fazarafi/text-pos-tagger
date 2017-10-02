@@ -32,9 +32,9 @@ class TagProbabilityService:
     t_dict = OrderedDict()
 
     #File Path to save TagProbabilityService object
-    tw_object_file_path = 'single_tag_probability_service.dat'
-    wt_object_file_path = 'three_tag_probability_service.dat'
-    ttt_object_file_path = 'three_tag_probability_service.dat'
+    tw_object_file_path = 'object_file_tw.dat'
+    wt_object_file_path = 'object_file_wt.dat'
+    ttt_object_file_path = 'object_file_ttt.dat'
 
 
     def __init__(self, file_path):
@@ -101,7 +101,7 @@ class TagProbabilityService:
         return self.tw_prob_dict
 
     def get_wt_prob_dict(self):
-        return self.wt__probdict
+        return self.wt_prob_dict
 
     def get_ttt_prob_dict(self):
         return self.ttt_prob_dict;
@@ -165,6 +165,6 @@ class TagProbabilityService:
             pickle.dump(self.ttt_prob_dict, f, pickle.HIGHEST_PROTOCOL)
 
 tag = TagProbabilityService("UD_English/en-ud-test.conllu")
-prob_dict = tag.get_tw_prob_dict()
+prob_dict = tag.get_ttt_prob_dict()
+print prob_dict
 #P(Tag.ADJ|rice)
-# print prob_dict[str(Tag.NOUN) + '|' + 'meeting']
